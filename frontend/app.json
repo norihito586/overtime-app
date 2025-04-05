@@ -1,0 +1,8 @@
+{
+	"expo": {
+	  "name": "otc-frontend",
+	  "slug": "otc-frontend",
+	  "version": "1.0.0",
+	  "newArchEnabled": true
+	}
+  }
