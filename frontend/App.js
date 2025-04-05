@@ -3,12 +3,14 @@ import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 
 export default function App() {
   const [hours, setHours] = useState('');
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000'; // 環境変数化
+
 
   const submitHours = async () => {
     console.log('送信ボタンを押しました'); // ボタン押したことを確認
     console.log('入力値:', hours); // 入力した値が見える
     try {
-      const response = await fetch('http://192.168.3.9:3000/api/overtime', {
+      const response = await fetch(`${API_URL}/api/overtime`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ hours: parseFloat(hours) }),
