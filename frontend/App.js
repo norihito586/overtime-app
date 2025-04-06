@@ -1,27 +1,43 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Linking } from 'react-native';
+import { REACT_APP_API_URL } from '@env';
 
 export default function App() {
   const [hours, setHours] = useState('');
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000'; // 環境変数化
-
 
   const submitHours = async () => {
-    console.log('送信ボタンを押しました'); // ボタン押したことを確認
-    console.log('入力値:', hours); // 入力した値が見える
+    console.log('API URL:', REACT_APP_API_URL);
     try {
-      const response = await fetch(`${API_URL}/api/overtime`, {
+      const response = await fetch(`${REACT_APP_API_URL}/api/overtime`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ hours: parseFloat(hours) }),
       });
-      console.log('バックエンドからのレスポンス:', response.status); // 通信の結果
       const data = await response.json();
-      console.log('データ:', data); // バックエンドが返した内容
       alert(`送信成功！残業時間: ${data.hours}時間`);
     } catch (error) {
-      console.log('エラー:', error.message); // エラーの詳細
       alert('送信失敗: ' + error.message);
+    }
+  };
+
+  const startPayment = async () => {
+    console.log('Payment URL:', `${REACT_APP_API_URL}/create-checkout-session`);
+    try {
+      const response = await fetch(`${REACT_APP_API_URL}/create-checkout-session`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      console.log('Response Status:', response.status);
+      const data = await response.json();
+      console.log('Response Data:', data);
+      if (!data.url) {
+        throw new Error('Checkout URLがありません: ' + (data.error || '不明なエラー'));
+      }
+      console.log('Checkout URL:', data.url);
+      Linking.openURL(data.url);
+    } catch (error) {
+      console.log('Error:', error.message);
+      alert('決済エラー: ' + error.message);
     }
   };
 
@@ -36,6 +52,7 @@ export default function App() {
         placeholder="例: 2.5"
       />
       <Button title="送信" onPress={submitHours} />
+      <Button title="課金する" onPress={startPayment} />
     </View>
   );
 }
